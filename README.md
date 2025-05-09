@@ -1,6 +1,6 @@
 # Medical Appointment Scheduler
 
-A medical appointment scheduling system with a REST API and console client.
+A medical appointment scheduling system with a REST API, web interface, and console client.
 
 ## Prerequisites
 
@@ -13,6 +13,7 @@ A medical appointment scheduling system with a REST API and console client.
 - `MedicalAppointmentScheduler.API` - The REST API project
 - `MedicalAppointmentScheduler.Console` - Console client application
 - `MedicalAppointmentScheduler.Web` - Web interface
+- `MedicalAppointmentScheduler.Tests` - Unit tests project
 
 ## Running the Application
 
@@ -29,7 +30,27 @@ A medical appointment scheduling system with a REST API and console client.
    ```
 4. The API will start on `https://localhost:7142`
 
-### 2. Run the Console Application
+### 2. Run the Web Interface
+
+1. Open a new terminal in the solution directory
+2. Navigate to the Web project:
+   ```bash
+   cd MedicalAppointmentScheduler.Web
+   ```
+3. Run the web application:
+   ```bash
+   dotnet run
+   ```
+4. Open your browser and navigate to `https://localhost:5001`
+
+The web interface provides a calendar view where you can:
+- View all appointments in a calendar format
+- Create new appointments by selecting time slots
+- Edit existing appointments
+- Delete appointments
+- Handle scheduling conflicts with alternative time suggestions
+
+### 3. Run the Console Application
 
 1. Open a new terminal in the solution directory
 2. Navigate to the Console project:
@@ -59,7 +80,7 @@ The console application provides a menu-driven interface to interact with the AP
    ```
    Enter patient name: John Doe
    Enter healthcare professional name: Dr. Smith
-   Enter appointment date (yyyy-MM-dd HH:mm): 2024-03-20 14:30
+   Enter appointment date (yyyy-MM-dd HH:mm): 2024-05-20 14:30
    Enter duration in minutes: 30
    Enter description (optional): Regular checkup
    ```
@@ -77,9 +98,32 @@ The console application provides a menu-driven interface to interact with the AP
    Description: Regular checkup
    ```
 
+## Running Unit Tests
+
+The project includes unit tests for both the API and business logic. To run the tests:
+
+1. Open a terminal in the solution directory
+2. Navigate to the Tests project:
+   ```bash
+   cd MedicalAppointmentScheduler.Tests
+   ```
+3. Run the tests:
+   ```bash
+   dotnet test
+   ```
+
+The test suite includes:
+- Appointment creation and validation tests
+- Scheduling conflict detection tests
+- Alternative time suggestion tests
+- API endpoint tests
+- Service layer tests
+
 ## Notes
 
-- Make sure the API is running before starting the console application
-- The console application connects to the API at `https://localhost:7142`
+- Make sure the API is running before starting the console application or web interface
+- The console application and web interface connect to the API at `https://localhost:7142`
 - If you get scheduling conflicts when creating appointments, the system will suggest alternative times
 - All times are handled in the local timezone of the server
+- The web interface requires a modern browser with JavaScript enabled
+- Unit tests use an in-memory database for testing
