@@ -16,7 +16,15 @@ public class AppointmentDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Appointment>()
-            .HasIndex(a => new { a.HealthcareProfessionalName, a.AppointmentDate });
+        modelBuilder.Entity<Appointment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            
+            entity.Property(e => e.PatientName).IsRequired();
+            entity.Property(e => e.HealthcareProfessionalName).IsRequired();
+            entity.Property(e => e.AppointmentDate).IsRequired();
+            entity.Property(e => e.Duration).IsRequired();
+        });
     }
 } 

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MedicalAppointmentScheduler.API.Models;
 using MedicalAppointmentScheduler.API.Services;
-using MedicalAppointmentScheduler.API.Exceptions;
 
 namespace MedicalAppointmentScheduler.API.Controllers;
 
@@ -37,41 +36,26 @@ public class AppointmentsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Appointment>> CreateAppointment(Appointment appointment)
     {
-        try
-        {
-            var createdAppointment = await _appointmentService.CreateAppointmentAsync(appointment);
-            return CreatedAtAction(nameof(GetAppointment), new { id = createdAppointment.Id }, createdAppointment);
-        }
-        catch (AppointmentConflictException ex)
-        {
+        var res = await _appointmentService.CreateAppointmentAsync(appointment);
+        if(res.alternativeTimes.Count == 0)
+            return CreatedAtAction(nameof(GetAppointment), new { id = res.appointment.Id }, res.appointment);
+        else
             return Conflict(new
             {
-                Message = ex.Message,
-                AlternativeTimes = ex.AlternativeTimes
+                Message = "Cannot create appointment due to scheduling conflict.",
+                AlternativeTimes = res.alternativeTimes
             });
-        }
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<Appointment>> UpdateAppointment(int id, Appointment appointment)
     {
-        try
+        var updatedAppointment = await _appointmentService.UpdateAppointmentAsync(id, appointment);
+        if (updatedAppointment == null)
         {
-            var updatedAppointment = await _appointmentService.UpdateAppointmentAsync(id, appointment);
-            if (updatedAppointment == null)
-            {
-                return NotFound($"Appointment with ID {id} not found.");
-            }
-            return Ok(updatedAppointment);
+            return NotFound($"Appointment with ID {id} not found.");
         }
-        catch (AppointmentConflictException ex)
-        {
-            return Conflict(new
-            {
-                Message = ex.Message,
-                AlternativeTimes = ex.AlternativeTimes
-            });
-        }
+        return Ok(updatedAppointment);
     }
 
     [HttpDelete("{id}")]

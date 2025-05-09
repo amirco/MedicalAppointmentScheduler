@@ -3,7 +3,6 @@ using MedicalAppointmentScheduler.API.Data;
 using MedicalAppointmentScheduler.API.Models;
 using MedicalAppointmentScheduler.API.Services;
 using Xunit;
-using MedicalAppointmentScheduler.API.Exceptions;
 
 namespace MedicalAppointmentScheduler.Tests;
 
@@ -39,11 +38,13 @@ public class AppointmentServiceTests
         var result = await _service.CreateAppointmentAsync(appointment);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(appointment.PatientName, result.PatientName);
-        Assert.Equal(appointment.HealthcareProfessionalName, result.HealthcareProfessionalName);
-        Assert.Equal(appointment.Duration, result.Duration);
-        Assert.Equal(appointment.AppointmentDate, result.AppointmentDate);
+        Assert.NotNull(result.appointment);
+        Assert.NotNull(result.alternativeTimes);
+        Assert.Empty(result.alternativeTimes);
+        Assert.Equal(appointment.PatientName, result.appointment.PatientName);
+        Assert.Equal(appointment.HealthcareProfessionalName, result.appointment.HealthcareProfessionalName);
+        Assert.Equal(appointment.Duration, result.appointment.Duration);
+        Assert.Equal(appointment.AppointmentDate, result.appointment.AppointmentDate);
     }
 
     public async Task CreateAppointment_WithConflict(DateTime existingAppointmentDate, int existingAppointmentDuration, DateTime newAppointmentDate, int newAppointmentDuration)
@@ -58,8 +59,10 @@ public class AppointmentServiceTests
             Description = "Existing appointment"
         };
 
-        await _service.CreateAppointmentAsync(existingAppointment);
-        await _context.SaveChangesAsync(); // Ensure the appointment is saved
+        var createdFirst = await _service.CreateAppointmentAsync(existingAppointment);
+        Assert.NotNull(createdFirst.alternativeTimes);
+        Assert.Empty(createdFirst.alternativeTimes);
+        await _context.SaveChangesAsync();
 
         var newAppointment = new Appointment
         {
@@ -71,20 +74,12 @@ public class AppointmentServiceTests
         };
 
         // Act
-        List<DateTime> alternativeTimes = null;
-        try
-        {
-            await _service.CreateAppointmentAsync(newAppointment);
-        }
-        catch (AppointmentConflictException ex)
-        {
-            alternativeTimes = ex.AlternativeTimes;
-        }
+        var createdSecond = await _service.CreateAppointmentAsync(newAppointment);
 
         // Assert
-        Assert.NotNull(alternativeTimes);
-        Assert.NotEmpty(alternativeTimes);
-        Assert.True(alternativeTimes.Count <= 3);
+        Assert.NotNull(createdSecond.alternativeTimes);
+        Assert.NotEmpty(createdSecond.alternativeTimes);
+        Assert.Equal(3, createdSecond.alternativeTimes.Count);
     }
 
     [Fact]
@@ -112,7 +107,7 @@ public class AppointmentServiceTests
     }
 
     [Fact]
-    public async Task UpdateAppointment_ValidId_ShouldUpdate()
+    public async Task UpdateAppointment_Valid_Id_ShouldUpdate()
     {
         // Arrange
         var appointment = new Appointment
@@ -127,12 +122,35 @@ public class AppointmentServiceTests
         var created = await _service.CreateAppointmentAsync(appointment);
 
         // Act
-        created.Description = "Updated appointment";
-        var updated = await _service.UpdateAppointmentAsync(created.Id, created);
+        created.appointment.Description = "Updated appointment";
+        var update = await _service.UpdateAppointmentAsync(created.appointment.Id, created.appointment);
 
         // Assert
-        Assert.NotNull(updated);
-        Assert.Equal("Updated appointment", updated.Description);
+        Assert.NotNull(update);
+        Assert.Equal("Updated appointment", update.Description);
+    }
+
+    [Fact]
+    public async Task UpdateAppointment_Valid_Id_ShouldNotUpdate()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            PatientName = "Iam Sick",
+            HealthcareProfessionalName = "Dr. Smith",
+            AppointmentDate = DateTime.Now.AddHours(1),
+            Duration = 30,
+            Description = "Original appointment"
+        };
+
+        var created = await _service.CreateAppointmentAsync(appointment);
+
+        // Act
+        created.appointment.Description = "Updated appointment";
+        var update = await _service.UpdateAppointmentAsync(9999, created.appointment);
+
+        // Assert
+        Assert.Null(update);
     }
 
     [Fact]
@@ -151,11 +169,11 @@ public class AppointmentServiceTests
         var created = await _service.CreateAppointmentAsync(appointment);
 
         // Act
-        var result = await _service.DeleteAppointmentAsync(created.Id);
+        var result = await _service.DeleteAppointmentAsync(created.appointment.Id);
 
         // Assert
         Assert.True(result);
-        var deleted = await _service.GetAppointmentByIdAsync(created.Id);
+        var deleted = await _service.GetAppointmentByIdAsync(created.appointment.Id);
         Assert.Null(deleted);
     }
 
@@ -204,4 +222,46 @@ public class AppointmentServiceTests
         // Assert
         Assert.Equal(2, result.Count());
     }
-} 
+
+    [Fact]
+    public async Task UpdateAppointment_AlternativeTimes_NextDay()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            PatientName = "Iam Sick",
+            HealthcareProfessionalName = "Dr. Smith",
+            AppointmentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0).AddDays(1),
+            Duration = 45,
+            Description = "Original appointment"
+        };
+
+        for (int i = 0; i < 23; i++)
+        {
+            var res = await _service.CreateAppointmentAsync(appointment);
+            Assert.NotNull(res.alternativeTimes);
+            Assert.Empty(res.alternativeTimes);
+            appointment.AppointmentDate = appointment.AppointmentDate.AddHours(1);
+        }
+
+        var newAppointment = new Appointment
+        {
+            PatientName = "Iam Sick",
+            HealthcareProfessionalName = "Dr. Smith",
+            AppointmentDate = DateTime.Now.AddDays(1),
+            Duration = 60,
+            Description = "Original appointment"
+        };
+
+        // Act
+        var created = await _service.CreateAppointmentAsync(newAppointment);
+        Assert.NotNull(created.alternativeTimes);
+        Assert.Equal(3, created.alternativeTimes.Count);
+
+        // Assert
+
+        foreach (var alternativeTime in created.alternativeTimes)
+            Assert.True(alternativeTime.Date != newAppointment.AppointmentDate.Date);
+    }
+
+}
