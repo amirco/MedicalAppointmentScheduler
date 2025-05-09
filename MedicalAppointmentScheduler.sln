@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointmentScheduler
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointmentScheduler.Web", "MedicalAppointmentScheduler.Web\MedicalAppointmentScheduler.Web.csproj", "{E42CF5D6-9E0C-4071-A318-FFC0D0616759}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointmentScheduler.Console", "MedicalAppointmentScheduler.Console\MedicalAppointmentScheduler.Console.csproj", "{C9172374-6576-C2AB-AC28-F5B747B40EFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{E42CF5D6-9E0C-4071-A318-FFC0D0616759}.Release|x64.Build.0 = Release|Any CPU
 		{E42CF5D6-9E0C-4071-A318-FFC0D0616759}.Release|x86.ActiveCfg = Release|Any CPU
 		{E42CF5D6-9E0C-4071-A318-FFC0D0616759}.Release|x86.Build.0 = Release|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Debug|x64.Build.0 = Debug|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Release|x64.ActiveCfg = Release|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Release|x64.Build.0 = Release|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9172374-6576-C2AB-AC28-F5B747B40EFA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

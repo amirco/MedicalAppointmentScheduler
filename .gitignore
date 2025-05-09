@@ -11,3 +11,5 @@
 /MedicalAppointmentScheduler.Tests/obj
 /MedicalAppointmentScheduler.Web/bin/Debug/net8.0
 /MedicalAppointmentScheduler.Web/obj
+/MedicalAppointmentScheduler.Console/bin/Debug/net8.0
+/MedicalAppointmentScheduler.Console/obj
